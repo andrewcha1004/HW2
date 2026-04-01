@@ -42,3 +42,34 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-project:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Self-Hosted Runner
+    needs: docker # docker 빌드/푸시 작업이 끝난 후에 실행됩니다.
+    if: github.event_name != 'pull_request' # PR에서는 배포하지 않고 오직 push(main 병합 등)시에만 배포
+    runs-on: self-hosted # 로컬 컴퓨터에 설정해둔 GitHub Runner 환경에서 구동됩니다.
+    
+    steps:
+      - name: Log in to Docker Hub
+        # private 이미지라면 이 단계가 필수입니다.
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        
+      - name: Stop and Remove Old Container
+        run: |
+          echo "기존 컨테이너가 있다면 중지 및 삭제합니다..."
+          docker stop age-prediction-api || true
+          docker rm age-prediction-api || true
+          
+      - name: Pull Latest Image
+        run: |
+          echo "새로 빌드된 최신 이미지를 로컬로 가져옵니다..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-project:latest
+        
+      - name: Run New Container
+        run: |
+          echo "새로운 컨테이너를 구동합니다..."
+          docker run -d \
+            --name age-prediction-api \
+            --restart unless-stopped \
+            -p 8000:8000 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-project:latest
