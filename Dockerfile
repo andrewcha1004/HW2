@@ -7,9 +7,14 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# OpenCV 의존성 설치 (필요한 최소한의 시스템 라이브러리만 설치)
+# OpenCV 의존성 설치 (DeepFace가 의존성으로 설치하는 opencv-python 실행을 위한 필수 시스템 라이브러리)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
+    libgl1-mesa-glx \
+    libxcb1 \
+    libxext6 \
+    libsm6 \
+    libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
 # 작업 디렉토리 설정
