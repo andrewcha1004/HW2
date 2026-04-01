@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from ml_model import AgePredictionModel
 
+#Hello World!
+
 # FastAPI 앱 생성
 app = FastAPI(
     title="Age Prediction MLOps API",
