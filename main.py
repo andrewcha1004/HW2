@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import uvicorn
 from ml_model import AgePredictionModel
 
@@ -16,6 +16,11 @@ app = FastAPI(
 model = AgePredictionModel()
 
 @app.get("/")
+def home():
+    """사용자용 웹 UI 엔드포인트"""
+    return FileResponse("index.html")
+
+@app.get("/health")
 def health_check():
     """로드밸런서나 컨테이너 오케스트레이션(Kubernetes 등)을 위한 상태 체크용 엔드포인트"""
     return {"status": "Healthy", "message": "API is running."}

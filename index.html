@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Prediction AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Modern Glassmorphism & Dark Mode Theme */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #818cf8;
+            background: rgba(129, 140, 248, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #818cf8;
+            text-shadow: 0 4px 15px rgba(129, 140, 248, 0.4);
+        }
+
+        .upload-text {
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .preview-container {
+            display: none;
+            position: relative;
+            margin: 0 auto 1.5rem auto;
+            max-width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            background: #000;
+            cursor: pointer;
+        }
+        
+        .preview-container:hover .rescan-overlay {
+            opacity: 1;
+        }
+
+        .rescan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        .face-box {
+            position: absolute;
+            border: 3px solid #34d399;
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5), inset 0 0 15px rgba(52, 211, 153, 0.2);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        .face-label {
+            position: absolute;
+            top: -40px;
+            left: -3px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.5);
+            width: 100%;
+            display: none;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-predict:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-predict:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loader {
+            display: none;
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-message {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #34d399;
+            min-height: 1.5rem;
+        }
+        
+        .footer-text {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Age Predictor AI</h1>
+        <p class="subtitle">Upload a photo to see what our AI thinks</p>
+
+        <div class="upload-area" id="drop-area">
+            <input type="file" id="file-input" accept="image/*">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Click to choose or drag an image here</div>
+        </div>
+
+        <div class="preview-container" id="preview-container" title="Click to upload another image">
+            <img id="image-preview" src="#" alt="Preview">
+            <div class="rescan-overlay">Click to change image</div>
+            <!-- Face boxes will be injected here -->
+        </div>
+
+        <button class="btn-predict" id="btn-predict">
+            <span id="btn-text">Predict Age</span>
+            <div class="loader" id="loader"></div>
+        </button>
+
+        <div class="result-message" id="result-message"></div>
+    </div>
+    <div class="footer-text">Powered by AI · Age Prediction MLOps Pipeline</div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const imagePreview = document.getElementById('image-preview');
+        const previewContainer = document.getElementById('preview-container');
+        const btnPredict = document.getElementById('btn-predict');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const resultMessage = document.getElementById('result-message');
+
+        let selectedFile = null;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (dt.files && dt.files.length > 0) {
+                handleFile(dt.files[0]);
+            }
+        }, false);
+
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        previewContainer.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                handleFile(this.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file.');
+                return;
+            }
+            selectedFile = file;
+            
+            cleanUpBoxes();
+            resultMessage.innerText = '';
+            btnPredict.style.display = 'block';
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+                dropArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function cleanUpBoxes() {
+            const boxes = document.querySelectorAll('.face-box');
+            boxes.forEach(box => box.remove());
+        }
+
+        btnPredict.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            btnText.style.display = 'none';
+            loader.style.display = 'block';
+            btnPredict.disabled = true;
+            resultMessage.innerText = 'Analyzing face(s) using AI...';
+            resultMessage.style.color = '#94a3b8';
+            cleanUpBoxes();
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/predict/age', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.faces_detected > 0) {
+                    resultMessage.innerText = `Successfully processed! Detected ${data.faces_detected} face(s).`;
+                    resultMessage.style.color = '#34d399';
+                    drawBoxes(data.predictions);
+                } else {
+                    resultMessage.innerText = data.message || 'No faces could be detected in the image.';
+                    resultMessage.style.color = '#f87171';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultMessage.innerText = 'An error occurred during prediction.';
+                resultMessage.style.color = '#f87171';
+            } finally {
+                btnText.style.display = 'block';
+                loader.style.display = 'none';
+                btnPredict.disabled = false;
+            }
+        });
+
+        function drawBoxes(predictions) {
+            const img = imagePreview;
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+            const displayWidth = img.clientWidth;
+            const displayHeight = img.clientHeight;
+
+            // In object-fit: contain, calculating actual displayed size and offset is needed
+            // But since max-width matches container, let's calculate precise image rendered rect inside the container
+            const imgRatio = naturalWidth / naturalHeight;
+            const containerRatio = displayWidth / displayHeight;
+            
+            let renderedWidth = displayWidth;
+            let renderedHeight = displayHeight;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            if (imgRatio > containerRatio) {
+                // Image is wider than container ratio
+                renderedHeight = displayWidth / imgRatio;
+                offsetY = (displayHeight - renderedHeight) / 2;
+            } else {
+                // Image is taller than container ratio
+                renderedWidth = displayHeight * imgRatio;
+                offsetX = (displayWidth - renderedWidth) / 2;
+            }
+
+            const scaleX = renderedWidth / naturalWidth;
+            const scaleY = renderedHeight / naturalHeight;
+
+            predictions.forEach(pred => {
+                let x, y, w, h;
+                if (pred.region && pred.region.x !== undefined) {
+                    x = (pred.region.x * scaleX) + offsetX;
+                    y = (pred.region.y * scaleY) + offsetY;
+                    w = pred.region.w * scaleX;
+                    h = pred.region.h * scaleY;
+                } else {
+                    return;
+                }
+
+                const box = document.createElement('div');
+                box.className = 'face-box';
+                box.style.left = `${x}px`;
+                box.style.top = `${y}px`;
+                box.style.width = `${w}px`;
+                box.style.height = `${h}px`;
+
+                const label = document.createElement('div');
+                label.className = 'face-label';
+                label.innerText = `${pred.age} Years`;
+                
+                box.appendChild(label);
+                previewContainer.appendChild(box);
+            });
+        }
+    </script>
+</body>
+</html>
