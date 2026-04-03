@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Prediction AI</title>
+    <title>Age & Gender AI Predictor</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Modern Glassmorphism & Dark Mode Theme */
@@ -217,8 +217,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Age Predictor AI</h1>
-        <p class="subtitle">Upload a photo to see what our AI thinks</p>
+        <h1>Age & Gender Predictor</h1>
+        <p class="subtitle">Upload a photo to predict both age and gender</p>
 
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept="image/*">
@@ -233,13 +233,13 @@
         </div>
 
         <button class="btn-predict" id="btn-predict">
-            <span id="btn-text">Predict Age</span>
+            <span id="btn-text">Predict Age & Gender</span>
             <div class="loader" id="loader"></div>
         </button>
 
         <div class="result-message" id="result-message"></div>
     </div>
-    <div class="footer-text">Powered by AI · Age Prediction MLOps Pipeline</div>
+    <div class="footer-text">Powered by AI · Age & Gender Prediction Pipeline</div>
 
     <script>
         const dropArea = document.getElementById('drop-area');
