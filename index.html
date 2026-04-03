@@ -411,7 +411,11 @@
 
                 const label = document.createElement('div');
                 label.className = 'face-label';
-                label.innerText = `${pred.age} Years`;
+                if (pred.gender && pred.gender !== "Unknown") {
+                    label.innerText = `${pred.gender}, ${pred.age} Years`;
+                } else {
+                    label.innerText = `${pred.age} Years`;
+                }
                 
                 box.appendChild(label);
                 previewContainer.appendChild(box);

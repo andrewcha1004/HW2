@@ -18,11 +18,11 @@ class AgePredictionModel:
         if img is None:
             raise ValueError("이미지를 디코딩할 수 없습니다. 형식을 확인해주세요.")
         
-        # 3. DeepFace를 이용한 나이 예측
+        # 3. DeepFace를 이용한 나이 및 성별 예측
         try:
             # enforce_detection=True: 얼굴이 없으면 예외 발생
-            # actions=['age']: 나이만 예측하여 속도 최적화
-            results = DeepFace.analyze(img_path=img, actions=['age'], enforce_detection=True)
+            # actions=['age', 'gender']: 나이와 성별 예측 (MLOps 요구사항)
+            results = DeepFace.analyze(img_path=img, actions=['age', 'gender'], enforce_detection=True)
             
             # 여러 명의 얼굴이 검출될 수 있으므로 항상 리스트 형태로 정규화
             if not isinstance(results, list):
@@ -30,8 +30,11 @@ class AgePredictionModel:
                 
             predictions = []
             for face in results:
+                # dominant_gender 값을 추출 (예: 'Man', 'Woman')
+                gender = face.get('dominant_gender', 'Unknown')
                 predictions.append({
                     "age": face.get('age'),
+                    "gender": gender,
                     "region": face.get('region') # 사진 상의 얼굴 위치 좌표
                 })
             return predictions
